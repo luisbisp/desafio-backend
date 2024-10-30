@@ -1,0 +1,135 @@
+# REST Client setup
+# Essa é uma representação do fluxo básico para criar, exibir e responder
+# um formulário do Respondi. Você pode simular todas as etapas disparando
+# requisições HTTP reais para o seu servidor local utilizando a extensão
+# REST Client, disponível aqui:
+# https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+# Uma requisição depende da outra, logo você deve fazer o fluxo de cima
+# para baixo para garantir que possui as variáveis corretas. Você
+# também deve configurar o @host de acordo com o endereço do seu
+# ambiente atual.
+
+@host = http://localhost:8000
+@token = {{userCreate.response.body.access_token}}
+@slug = {{formCreate.response.body.data.slug}}
+
+### Criar um usuário
+# Você precisa ter um usuário autenticado para criar seu primeiro
+# formulário. Para facilitar a vida, ao criar um novo user,
+# essa rota já retornar um token para autenticar as demais request.
+
+# @name userCreate
+POST {{host}}/api/users HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Test User",
+    "email": "{{$timestamp}}@email.test",
+    "password": "TestPass321"
+}
+
+### Criar um form
+# Com o token de usuário, é possível criar um formulário básico.
+# Na app real, nossos formulários possuem muito mais propriedades,
+# como estilos, validações e lógicas.
+
+# @name formCreate
+POST {{host}}/api/forms HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Test form",
+    "notification": {
+        "email": true,
+        "whatsapp": false
+    },
+    "fields": [
+    {
+        "label": "Qual seu nome?",
+        "type": "text",
+        "required": false
+    },
+    {
+        "label": "Qual seu email?",
+        "type": "email",
+        "required": false
+    },
+    {
+        "label": "Qual seu telefone?",
+        "type": "phone",
+        "required": false
+    }]
+}
+
+### Acessando um form
+# Após o form criado, o dono compartilha o link com as pessoas que deseja que respondam.
+# Essa pessoa é um visitante anônimo, que consome os dados através de
+# um front-end em vue.js (que por sua vez consome este endpoint).
+
+# @name form
+GET {{host}}/api/forms/{{slug}} HTTP/1.1
+content-type: application/json
+
+### Enviando respostas
+# Cada pergunta gera uma linha no banco de dados. Dessa forma, temos acesso as
+# respostas parciais de cada preenchimento, mesmo que a pessoa abandone
+# o formulário no meio. Na primeira resposta, é gerado o respondent_id desse preenchimento
+
+# @name submitAnswer
+POST {{host}}/api/answers HTTP/1.1
+content-type: application/json
+
+{
+    "form_id": "{{slug}}",
+    "question": "{{form.response.body.fields.0.label}}",
+    "value": "John Doe",
+    "field_id": "{{form.response.body.fields.0.field_id}}",
+    "type": "{{form.response.body.fields.0.type}}"
+}
+
+
+### Continue respondendo...
+# Para que as demais respostas sejam atreladas ao mesmo respondente,
+# o respondent_id deve ser informado. Se nenhum for informado,
+# será tratado como um novo respondente
+
+POST {{host}}/api/answers HTTP/1.1
+content-type: application/json
+
+{
+    "respondent_id": "{{submitAnswer.response.body.data.respondent_id}}",
+    "form_id": "{{slug}}",
+    "question": "{{form.response.body.fields.1.label}}",
+    "value": "email@test.com",
+    "field_id": "{{form.response.body.fields.1.field_id}}",
+    "type": "{{form.response.body.fields.1.type}}"
+}
+
+
+### Finalizar o preenchimento
+# Na aplicação real existem diversas lógicas que determinam qual é a última
+# pergunta que aquele respondente irá ver. Um formulário pode exibir 5 perguntas
+# para um perfil de respondente e 10 para outro, por exemplo.
+# Quando identificamos que é a última, enviamos o parametro "is_last" para
+# finalizar a sessão e salvar a hora que o preenchimento foi concluído.
+
+POST {{host}}/api/answers HTTP/1.1
+content-type: application/json
+
+{
+    "respondent_id": "{{submitAnswer.response.body.data.respondent_id}}",
+    "form_id": "{{slug}}",
+    "question": "{{form.response.body.fields.2.label}}",
+    "value": "5511912312312",
+    "field_id": "{{form.response.body.fields.2.field_id}}",
+    "type": "{{form.response.body.fields.2.type}}",
+    "is_last": true
+}
+
+# Após preencher a última pergunta possível para aquele respondente,
+# o formulário exibe uma mensagem de agradecimento no front e
+# apaga o cookie com o respondent_id atual.
+
+# 🎉 Parabéns, você completou o fluxo básico da nossa API!

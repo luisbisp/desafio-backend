@@ -1,0 +1,49 @@
+@token = 6|MsqVX1CuakB4qogxw3CAsNvdV2gSpWNAPXc7hO4Da7379be6
+@host = http://localhost:8000
+@slug = {{create.response.body.data.slug}}
+
+# @name create
+POST {{host}}/api/forms HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Test form",
+    "fields": [{
+        "label": "Qual seu nome?",
+        "type": "text",
+        "required": false
+    }]
+}
+
+### Show a Form
+GET {{host}}/api/forms/{{slug}} HTTP/1.1
+content-type: application/json
+
+{
+    "title": "Test form",
+    "fields": [{
+        "label": "Qual seu nome?",
+        "type": "text",
+        "required": false
+    }]
+}
+
+### Update a Form
+PUT {{host}}/api/forms/{{slug}} HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Test form updated",
+    "fields": [{
+        "label": "Qual seu nome?",
+        "type": "text",
+        "required": false
+    }]
+}
+
+### Delete a Form
+DELETE {{host}}/api/forms/{{slug}} HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}

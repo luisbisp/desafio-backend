@@ -1,0 +1,17 @@
+@token = {{create.response.body.access_token}}
+@host = http://localhost:8000
+
+# @name create
+POST {{host}}/api/users HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Test User",
+    "email": "{{$timestamp}}@test.com",
+    "password": "TestPass321"
+}
+
+### List Users
+GET {{host}}/api/users HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}

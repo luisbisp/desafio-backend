@@ -1,0 +1,29 @@
+@host = http://localhost:8000
+@slug = QIHKpmzQ
+
+### Create an Answer and Respondent
+POST {{host}}/api/answers HTTP/1.1
+content-type: application/json
+
+{
+    "respondent_id": null,
+    "form_id": "{{slug}}",
+    "question": "Qual seu nome?",
+    "value": "teste",
+    "field_id": "field_123",
+    "type": "text"
+}
+
+### Create an Answer and complete session
+POST {{host}}/api/answers HTTP/1.1
+content-type: application/json
+
+{
+    "respondent_id": null,
+    "form_id": "{{slug}}",
+    "question": "Qual seu nome?",
+    "value": "teste",
+    "field_id": "field_123",
+    "type": "text",
+    "is_last": true
+}
