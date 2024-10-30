@@ -24,12 +24,14 @@ class UserController extends Controller
             "name" => "required|max:255",
             "email" => "required|email|unique:users,email|max:255",
             "password" => "required|min:8|max:255",
+            "phone" => "required|digits:11",
         ]);
 
         $user =  User::create([
             "name" => $valid["name"],
             "email" => $valid["email"],
             "password" => $valid["password"],
+            "phone" => $valid["phone"],
         ]);
 
         // Normalmente este token não seria retornado em produção dessa forma.

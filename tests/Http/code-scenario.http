@@ -26,7 +26,8 @@ content-type: application/json
 {
     "name": "Test User",
     "email": "{{$timestamp}}@email.test",
-    "password": "TestPass321"
+    "password": "TestPass321",
+    "phone": "69933315667"
 }
 
 ### Criar um form
@@ -42,8 +43,8 @@ Authorization: Bearer {{token}}
 {
     "title": "Test form",
     "notification": {
-        "email": true,
-        "whatsapp": false
+        "email": false,
+        "whatsapp": true
     },
     "fields": [
     {
