@@ -6,22 +6,21 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\User;
 
 
 class NotificationUser extends Notification
 {
     use Queueable;
 
-    private $user;
+    private $email;
     public $email_model;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(User $user, $email_model)
+    public function __construct($email, $email_model)
     {
-        $this->$user = $user;
+        $this->$email = $email;
         $this->email_model = (array) $email_model;
     }
 

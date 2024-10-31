@@ -50,11 +50,7 @@ class AnswerController extends Controller
 
 
 			$form = Form::where('slug', $answer->form_id)->first();
-			$notification = new FormNotificationService();
-			$notification->notifyFormCreatorEmail($form, $respondent);
-			$notification->notifyFormCreatorWhatsapp($form, $respondent);
-			$notification->notifyFormCreatorWenhook($form, $respondent);
-			
+			$notification = new FormNotificationService($form, $respondent);
 		}
 
 		return response()->json(['data' => $answer], 201);

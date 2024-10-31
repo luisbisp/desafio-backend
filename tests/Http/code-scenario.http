@@ -44,11 +44,11 @@ Authorization: Bearer {{token}}
     "title": "Test form",
     "notification": {
         "email": false,
-        "whatsapp": true,
+        "whatsapp": false,
         "respondent_email": true,
         "webhook": {
-            "active": true,
-            "url": "https://canalmarkket.com.br/teste"
+            "active": false,
+            "url": "https://webhook.site/ee6c520d-b3d4-4c57-a6a3-08c3fef2198a"
         }
     },
     "fields": [

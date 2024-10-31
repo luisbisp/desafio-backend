@@ -2,14 +2,26 @@
 
 namespace App\Services;
 
+use App\Models\Answer;
 use App\Models\Form;
 use App\Models\Respondent;
 use App\Notifications\NotificationUser;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Validator;
 
 class FormNotificationService
 {
+
+    public function __construct(Form $form, Respondent $respondent)
+    {
+        $this->notifyFormCreatorEmail( $form,  $respondent);
+        $this->notifyFormCreatorWhatsapp( $form,  $respondent);
+        $this->notifyFormCreatorWenhook( $form,  $respondent);
+        $this->notifyFormRespondentEmail( $form,  $respondent);
+    }
+
     /**
      * Envia notificação para o criador do formulário(se ativada).
      *
@@ -23,11 +35,11 @@ class FormNotificationService
 
         if ($form->notification['email']) {
             $formCreator->notify(new NotificationUser(
-                $formCreator,
+                $formCreator->email,
                 [
                     'subject' => "Novo preenchimento no '{$form->title}'",
                     'title' => "Novo preenchimento no '{$form->title}' recebido. Confira no link:",
-                    'message' => "https://teste.com/api/forms/{$respondent->form_id}",
+                    'link' => "https://teste.com/api/forms/{$respondent->form_id}",
                 ]
             ));
         }
@@ -84,7 +96,7 @@ class FormNotificationService
     {
         $formCreator = $form->user;
         $formCreator->notify(new NotificationUser(
-            $formCreator,
+            $formCreator->email,
             [
                 'subject' => "Limite de mensagens WhatsApp atingido",
                 'title' => "Olá, parece que voceu atingiu o limite de mensagens pelo WhatsApp. Veja mais detalhes no link:",
@@ -140,11 +152,40 @@ class FormNotificationService
     {
         $formCreator = $form->user;
         $formCreator->notify(new NotificationUser(
-            $formCreator,
+            $formCreator->email,
             [
                 'subject' => "Erro ao enviar Webhook",
                 'title' => "Ocorreu um erro ao enviar o Webhook. Status: $status, Veja mais detalhes no link:",
                 'link' => "https://teste.com",
+            ]
+        ));
+    }
+
+    /**
+     * Notifica o respondente via email que formulario foi competado com sucesso.
+     *
+     * @param Form $form
+     * @param Respondent $respondent
+     * @return void
+     */
+    public function notifyFormRespondentEmail(Form $form, Respondent $respondent): void
+    {
+        $email =  Answer::getEmailAnswerByRespondent($respondent->public_id);
+
+        $validate = Validator::make(['email' => $email], [
+            'email' => 'required|email',
+        ]);
+
+        if ($validate->fails()) {
+            return;
+        }
+
+        Notification::route('mail', $email)->notify(new NotificationUser(
+            $email,
+            [
+                'subject' => "Seu preenchimento do formulário '{$form->title}' foi completado",
+                'title' => "Novo preenchimento no '{$form->title}' recebido. Confira no link:",
+                'link' => "https://teste.com/api/forms/{$respondent->form_id}",
             ]
         ));
     }

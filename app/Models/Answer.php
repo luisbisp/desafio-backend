@@ -43,4 +43,12 @@ class Answer extends Model
 	{
 		return $this->belongsTo(Form::class, 'form_id', 'slug');
 	}
+
+	public static function getEmailAnswerByRespondent($respondentId)
+	{
+		return Answer::where('type', 'email')
+		->where('respondent_id', $respondentId)
+		->latest()
+		->value('value');
+	}
 }
