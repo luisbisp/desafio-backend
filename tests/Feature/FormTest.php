@@ -19,6 +19,15 @@ class FormTest extends TestCase
 
 		$formData = [
 			'title' => 'Example Form ' . time(),
+			'notification' => [
+				'email' => false,
+				'whatsapp' => false,
+				'respondent_email' => false,
+				'webhook' => [
+					'active' => false,
+					'url' => 'testwebhook',
+				]
+			],
 			'fields' => [
 				['type' => 'text', 'label' => 'Name', 'required' => true],
 				['type' => 'email', 'label' => 'Email', 'required' => true]

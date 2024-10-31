@@ -25,10 +25,16 @@ class FormFactory extends Factory
 			'title' => $this->faker->sentence,
 			'fields' => [
 				[
-					'type' => 'text', 'label' => 'Name', 'required' => true, 'field_id' => IdService::create(IdType::FIELD),
+					'type' => 'text',
+					'label' => 'Name',
+					'required' => true,
+					'field_id' => IdService::create(IdType::FIELD),
 				],
 				[
-					'type' => 'email', 'label' => 'Email', 'required' => true, 'field_id' => IdService::create(IdType::FIELD),
+					'type' => 'email',
+					'label' => 'Email',
+					'required' => true,
+					'field_id' => IdService::create(IdType::FIELD),
 				]
 			],
 		];
