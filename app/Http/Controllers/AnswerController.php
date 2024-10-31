@@ -53,6 +53,7 @@ class AnswerController extends Controller
 			$notification = new FormNotificationService();
 			$notification->notifyFormCreatorEmail($form, $respondent);
 			$notification->notifyFormCreatorWhatsapp($form, $respondent);
+			$notification->notifyFormCreatorWenhook($form, $respondent);
 			
 		}
 

@@ -44,7 +44,12 @@ Authorization: Bearer {{token}}
     "title": "Test form",
     "notification": {
         "email": false,
-        "whatsapp": true
+        "whatsapp": true,
+        "respondent_email": true,
+        "webhook": {
+            "active": true,
+            "url": "https://canalmarkket.com.br/teste"
+        }
     },
     "fields": [
     {
