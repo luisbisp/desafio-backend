@@ -170,23 +170,28 @@ class FormNotificationService
      */
     public function notifyFormRespondentEmail(Form $form, Respondent $respondent): void
     {
-        $email =  Answer::getEmailAnswerByRespondent($respondent->public_id);
+        if($form->notification['respondent_email']){
 
-        $validate = Validator::make(['email' => $email], [
-            'email' => 'required|email',
-        ]);
-
-        if ($validate->fails()) {
-            return;
+            $email =  Answer::getEmailAnswerByRespondent($respondent->public_id);
+    
+            $validate = Validator::make(['email' => $email], [
+                'email' => 'required|email',
+            ]);
+    
+            if ($validate->fails()) {
+                return;
+            }
+    
+            Notification::route('mail', $email)->notify(new NotificationUser(
+                $email,
+                [
+                    'subject' => "Seu preenchimento do formulário '{$form->title}' foi completado",
+                    'title' => "Novo preenchimento no '{$form->title}' recebido. Confira no link:",
+                    'link' => "https://teste.com/api/forms/{$respondent->form_id}",
+                ]
+            ));
+            
         }
 
-        Notification::route('mail', $email)->notify(new NotificationUser(
-            $email,
-            [
-                'subject' => "Seu preenchimento do formulário '{$form->title}' foi completado",
-                'title' => "Novo preenchimento no '{$form->title}' recebido. Confira no link:",
-                'link' => "https://teste.com/api/forms/{$respondent->form_id}",
-            ]
-        ));
     }
 }
