@@ -20,6 +20,8 @@ class User extends Authenticatable
         'password',
         'role',
         'phone',
+        'plan',
+        'whatsapp_msg_received_count',
     ];
 
     protected $hidden = [

@@ -43,7 +43,7 @@ class NotificationUser extends Notification
         return (new MailMessage)
                     ->subject($this->email_model['subject'])
                     ->line($this->email_model['title'])
-                    ->line($this->email_model['message']);
+                    ->line($this->email_model['link']);
     }
 
     /**

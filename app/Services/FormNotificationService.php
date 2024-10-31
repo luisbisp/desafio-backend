@@ -35,6 +35,12 @@ class FormNotificationService
     public function notifyFormCreatorWhatsapp(Form $form, Respondent $respondent)
     {
         $formCreator = $form->user;
+
+        if($formCreator->plan === 'free' && $formCreator->whatsapp_msg_received_count >= 10) {
+            $this->limitWhatsappMessage($form);
+            return;
+        }
+
         if ($form->notification['whatsapp'] && $formCreator->phone) {
             
             try {
@@ -44,6 +50,7 @@ class FormNotificationService
                     ]);
 
                 if ($response->successful()) {
+                    $formCreator->increment('whatsapp_msg_received_count');
                     return [
                         'error' => false,
                         'response' =>$response->json()
@@ -62,5 +69,20 @@ class FormNotificationService
                 ];
             }
         }
+    }
+
+    public function limitWhatsappMessage(Form $form)
+    {
+        echo 'fui chamado chefe';
+        $formCreator = $form->user;
+        $formCreator->notify(new NotificationUser(
+            $formCreator,
+            [
+                'subject' => "Limite de mensagens WhatsApp atingido",
+                'title' => "Olá, parece que voceu atingiu o limite de mensagens pelo WhatsApp. Veja mais detalhes no link:",
+                'link' => "https://teste.com",
+            ]
+        ));
+
     }
 }
