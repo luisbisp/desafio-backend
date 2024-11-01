@@ -112,7 +112,8 @@ class FormTest extends TestCase
 
 	public function test_user_cannot_list_other_users_forms()
 	{
-		$form = Form::factory()->create();
+		$user = User::factory()->create();
+		$form = Form::factory()->create(['user_id' => $user->public_id]);
 		$this->assertDatabaseHas("forms", ["slug" => $form->slug]);
 
 		// Anonymus
@@ -128,7 +129,8 @@ class FormTest extends TestCase
 
 	public function test_user_cannot_update_other_users_forms()
 	{
-		$form = Form::factory()->create(["title" => "test"]);
+		$user = User::factory()->create();
+		$form = Form::factory()->create(['user_id' => $user->public_id, "title" => "test"]);
 		$this->assertDatabaseHas("forms", ["slug" => $form->slug, "title" => "test"]);
 
 		// Anonymus
@@ -144,7 +146,8 @@ class FormTest extends TestCase
 
 	public function test_user_cannot_delete_other_users_forms()
 	{
-		$form = Form::factory()->create(["title" => "test"]);
+		$user = User::factory()->create();
+		$form = Form::factory()->create(['user_id' => $user->public_id, "title" => "test"]);
 		$this->assertDatabaseHas("forms", ["slug" => $form->slug]);
 
 		// Anonymus
@@ -173,7 +176,8 @@ class FormTest extends TestCase
 			],
 		];
 
-		$form = Form::factory()->create(["fields" => $fields]);
+		$user = User::factory()->create();
+		$form = Form::factory()->create(['user_id' => $user->public_id, "fields" => $fields]);
 		$this->assertNotNull($form->fields[0]["field_id"]);
 		$this->assertNotNull($form->fields[1]["field_id"]);
 	}

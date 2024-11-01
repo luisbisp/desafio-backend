@@ -14,14 +14,6 @@ use Illuminate\Support\Facades\Validator;
 class FormNotificationService
 {
 
-    public function __construct(Form $form, Respondent $respondent)
-    {
-        $this->notifyFormCreatorEmail( $form,  $respondent);
-        $this->notifyFormCreatorWhatsapp( $form,  $respondent);
-        $this->notifyFormCreatorWenhook( $form,  $respondent);
-        $this->notifyFormRespondentEmail( $form,  $respondent);
-    }
-
     /**
      * Envia notificação para o criador do formulário(se ativada).
      *
@@ -32,7 +24,6 @@ class FormNotificationService
     public function notifyFormCreatorEmail(Form $form, Respondent $respondent): void
     {
         $formCreator = $form->user;
-
         if ($form->notification['email']) {
             $formCreator->notify(new NotificationUser(
                 $formCreator->email,
@@ -58,10 +49,10 @@ class FormNotificationService
 
         if ($formCreator->plan === 'free' && $formCreator->whatsapp_msg_received_count >= 10) {
             $this->limitWhatsappMessage($form);
+            return;
         }
 
-        if ($form->notification['whatsapp'] && $formCreator->phone) {
-
+        if ($form->notification['whatsapp'] && $formCreator->phone) {           
             try {
                 $response = Http::post(config('services.whatsapp.url'), [
                     'phone' => $formCreator->phone,
@@ -69,7 +60,7 @@ class FormNotificationService
                 ]);
 
                 if ($response->successful()) {
-                    $formCreator->increment('whatsapp_msg_received_count');
+                    $formCreator->increment('whatsapp_msg_received_count');                 
                 } else {
                     Log::error('Erro ao enviar para o WhatsApp', [
                         'status' => $response->status(),
@@ -173,7 +164,7 @@ class FormNotificationService
         if($form->notification['respondent_email']){
 
             $email =  Answer::getEmailAnswerByRespondent($respondent->public_id);
-    
+
             $validate = Validator::make(['email' => $email], [
                 'email' => 'required|email',
             ]);

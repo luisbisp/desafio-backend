@@ -21,7 +21,7 @@ class FormFactory extends Factory
 	{
 		return [
 			'slug' => IdService::create(IdType::FORM),
-			'user_id' => IdService::create(IdType::USER),
+			// 'user_id' => IdService::create(IdType::USER),
 			'title' => $this->faker->sentence,
 			'fields' => [
 				[
