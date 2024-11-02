@@ -1,50 +1,62 @@
-## Base Form Project
-Esse projeto simula uma versão simplificada da nossa API. Ele possui as entidades básicas para iniciar uma API que pode ser consumida por um front-end.
+# Desafio Back-end - Implementação de notificações
 
+Este projeto implementa a feature de notificações na API. Ao criar um formulário, o usuário pode optar por ativar notificações por e-mail, WhatsApp e webhook. Além disso, há a opção de enviar notificações por e-mail para o respondente assim que o formulário é concluído.
 
-O projeto roda em Laravel 10, você pode ler a documentação do framework [aqui](https://laravel.com/docs/10.x)
+## 🚀 Começando
 
-## Requisitos
-- PHP 8.1 ou superior
-- Composer
-- MySql 8
+Essas instruções permitirão que você obtenha uma cópia do projeto em operação na sua máquina local para fins de desenvolvimento e teste.
 
-## Instalação
-1. Crie um arquivo .env baseado no .env.example
-2. Altere as configurações necessárias no .env
-3. Instale as dependências com `composer install`
-4. Rode as migrations com `artisan migrate`
-4. Inicie o servidor local com `artisan serve`
+### 📋 Pré-requisitos
 
-### Seed
-Se desejar iniciar com alguns dados no banco de dados, existe um arquivo de seed em `./database/seeders/UserDataSeeder.php`. Esse arquivo cria um numero X de usuários, com Y formulários, e Z respondentes em cada form. Você pode alterar as configurações nas propriedades correspondentes.
+* PHP 8.1 ou superior
+* Composer
+* MySql 8
 
-Para rodar o seed, use `artisan db:seed`
+### 🔧 Instalação
 
-### Queue & Jobs
-Para simplificar, em ambiente de desenvolvimento use o driver `database` para rodar os jobs. Em produção, essa fila é implementada via Redis.
+Para utilizar a API siga os seguintes passos:
 
-# Arquitetura básica
-Essa API possui as entidades mínimas para funcionar como o produto funciona:
-- Users: um usuário logado
-- Forms: um formulário que pertence a um usuário
-- Respondents: um visitante anônimo que responde um formulário
-- Answers: uma resposta individual a uma pergunta do formulário, feita por um respondente
+* Clone o repositório e utilize a branch principal`(master)`.
+* Crie um arquivo `.env` baseado no .env.example.
+* No arquivo `.env`, adicione uma URL de destino para as notificações via WhatsApp. Para testes, você pode utilizar https://webhook.site como exemplo, conforme mostrado abaixo:  
+```
+WHATSAPP_URL="https://webhook.site/{seu-token}"
+```
+* No arquivo `.env`, adicione as configurações de e-mail. Para testes, você pode utilizar https://mailtrap.io, conforme o exemplo abaixo:
+```
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=4bb41*****
+MAIL_PASSWORD=898b32*****
+```
 
-Além dos models acima, uma outra entidade secundária que não é representada como uma tabela são as "questions/fields". Essa entidade é uma coluna json na tabela forms.
+* Instale as dependências com composer install.
+* Rode as migrations com artisan migrate.
+* Inicie o servidor local com artisan serve.
 
+## ⚙️ Testes
 
-Um usuário pode ter vários forms, com múltiplas questions. Um form pode ter vários Respondents. Um respondente pode ter até uma Answer por question.
+Para realizar testes manuais, utilize o arquivo `/tests/Http/code-scenario.http`.
 
+As notificações podem ser ativadas ou desativadas por meio do objeto `notification`. Caso a notificação via webhook esteja ativada, adicione uma URL de destino. Para testes, você pode utilizar novamente https://webhook.site como exemplo.
 
-# Testes
-Existem testes simples de integração para cada endpoint implementado na API. Eles são testes fracos, considerando apenas o "caminho feliz", mas são um começo. Você pode rodar com `artisan test`.
+```
+    "notification": {
+        "email": boolean,
+        "whatsapp": boolean,
+        "respondent_email": boolean,
+        "webhook": {
+            "active": boolean,
+            "url": "https://webhook.site/{seu-token}"
+        }
+    }
+```
 
-Se preferir realizar testes manualmente, existe um arquivo de collection HTTP em `/tests/Http/code-scenario.http`
+### 🔩 Executando os testes
 
-# Além disso...
-Note que várias funcionalidade foram implementadas de forma simplificada. Esse projeto retrata apenas um start, e não cobre todos so casos de uso de uma API real.
+ Você pode verificá-los executando o seguinte comando:
 
-...
-# Implementação de Notificações
-Adicione qualquer documentação necessária para rodar sua implementação a partir daqui...
+```
+php artisan test tests/Feature
+```

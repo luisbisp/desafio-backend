@@ -18,6 +18,8 @@
 # Você precisa ter um usuário autenticado para criar seu primeiro
 # formulário. Para facilitar a vida, ao criar um novo user,
 # essa rota já retornar um token para autenticar as demais request.
+# Para notificações pelo whatsApp foi adicionado como obrigatório o cadastro 
+# do telefone
 
 # @name userCreate
 POST {{host}}/api/users HTTP/1.1
@@ -34,6 +36,9 @@ content-type: application/json
 # Com o token de usuário, é possível criar um formulário básico.
 # Na app real, nossos formulários possuem muito mais propriedades,
 # como estilos, validações e lógicas.
+# As notificações podem ser ativadas ou desativadas
+# Ao ativar a notificação por webhook, por favor insira uma url válida, para
+# testes foi utilizado o site: https://webhook.site
 
 # @name formCreate
 POST {{host}}/api/forms HTTP/1.1
@@ -43,7 +48,7 @@ Authorization: Bearer {{token}}
 {
     "title": "Test form",
     "notification": {
-        "email": false,
+        "email": true,
         "whatsapp": false,
         "respondent_email": true,
         "webhook": {
