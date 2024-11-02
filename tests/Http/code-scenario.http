@@ -43,12 +43,12 @@ Authorization: Bearer {{token}}
 {
     "title": "Test form",
     "notification": {
-        "email": true,
-        "whatsapp": true,
+        "email": false,
+        "whatsapp": false,
         "respondent_email": true,
         "webhook": {
-            "active": true,
-            "url": "https://webhook.site/ee6c520d-b3d4-4c57-a6a3-08c3fef2198a"
+            "active": false,
+            "url": "https://webhook.site/d1ec3f57-cc28-435d-9cbd-bd99d9ca9e64"
         }
     },
     "fields": [
@@ -138,4 +138,40 @@ content-type: application/json
 # o formulário exibe uma mensagem de agradecimento no front e
 # apaga o cookie com o respondent_id atual.
 
-# 🎉 Parabéns, você completou o fluxo básico da nossa API!
+
+### Atualizando formulário já existente
+#Após criar um formulário é possivel atualizalo para receber ou deixar de receber notificacações
+# @name updateForm
+
+PUT {{host}}/api/forms/{{slug}} HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Test form",
+    "notification": {
+        "email": true,
+        "whatsapp": true,
+        "respondent_email": true,
+        "webhook": {
+            "active": true,
+            "url": "https://webhook.site/d1ec3f57-cc28-435d-9cbd-bd99d9ca9e64"
+        }
+    },
+    "fields": [
+    {
+        "label": "Qual seu nome?",
+        "type": "text",
+        "required": false
+    },
+    {
+        "label": "Qual seu email?",
+        "type": "email",
+        "required": false
+    },
+    {
+        "label": "Qual seu telefone?",
+        "type": "phone",
+        "required": false
+    }]
+}

@@ -69,6 +69,15 @@ class FormTest extends TestCase
 
 		$updatedData = [
 			'title' => 'Updated Title',
+			'notification' => [
+				'email' => false,
+				'whatsapp' => false,
+				'respondent_email' => false,
+				'webhook' => [
+					'active' => false,
+					'url' => 'testwebhook',
+				]
+			],
 			'fields' => [
 				[
 					'type' => 'text',
@@ -180,5 +189,30 @@ class FormTest extends TestCase
 		$form = Form::factory()->create(['user_id' => $user->public_id, "fields" => $fields]);
 		$this->assertNotNull($form->fields[0]["field_id"]);
 		$this->assertNotNull($form->fields[1]["field_id"]);
+	}
+
+	public function test_create_with_respondent_email_without_email_field(){
+		$user = User::factory()->create();
+
+		$formData = [
+			'title' => 'Example Form ' . time(),
+			'notification' => [
+				'email' => false,
+				'whatsapp' => false,
+				'respondent_email' => true,
+				'webhook' => [
+					'active' => false,
+					'url' => 'testwebhook',
+				]
+			],
+			'fields' => [
+				['type' => 'text', 'label' => 'Name', 'required' => true]
+			],
+		];
+
+		$response = $this->actingAs($user)->post('/api/forms', $formData);
+
+		$response->assertStatus(400);
+		
 	}
 }

@@ -15,7 +15,7 @@ class FormNotificationService
 {
 
     /**
-     * Envia notificação para o criador do formulário(se ativada).
+     * Sends a notification to the form creator (if activated).
      *
      * @param Form $form
      * @param Respondent $respondent
@@ -37,7 +37,7 @@ class FormNotificationService
     }
 
     /**
-     * Envia notificação via WhatsApp(se ativada) para o criador do formulário.
+     * Sends a notification via WhatsApp (if activated) to the form creator.
      *
      * @param Form $form
      * @param Respondent $respondent
@@ -77,7 +77,8 @@ class FormNotificationService
     }
 
     /**
-     * Envia notificação via WhatsApp para o criador do formulário, informando que o limite de mensagens foi atingido.
+     * Sends a notification via WhatsApp to the form creator,
+     * informing that the message limit has been reached
      *
      * @param Form $form
      * @param Respondent $respondent
@@ -97,13 +98,13 @@ class FormNotificationService
     }
 
     /**
-     * Envia notificação via Webhook(se ativada) para a url salva no formulario,.
+     * Sends a notification via Webhook (if activated) to the URL saved in the form.
      *
      * @param Form $form
      * @param Respondent $respondent
      * @return void
      */
-    public function notifyFormCreatorWenhook(Form $form, Respondent $respondent): void
+    public function notifyFormCreatorWebhook(Form $form, Respondent $respondent): void
     {
         if ($form->notification['webhook']['active'] && $form->notification['webhook']['url']) {
 
@@ -133,7 +134,7 @@ class FormNotificationService
     }
 
     /**
-     * Notifica o criador do formulário que houve um erro ao enviar o Webhook.
+     * Notifies the form creator that there was an error sending the Webhook.
      *
      * @param Form $form
      * @param int $status
@@ -153,7 +154,7 @@ class FormNotificationService
     }
 
     /**
-     * Notifica o respondente via email que formulario foi competado com sucesso.
+     * Notifies the respondent via email that the form has been completed successfully.
      *
      * @param Form $form
      * @param Respondent $respondent
@@ -168,7 +169,7 @@ class FormNotificationService
             $validate = Validator::make(['email' => $email], [
                 'email' => 'required|email',
             ]);
-    
+
             if ($validate->fails()) {
                 return;
             }

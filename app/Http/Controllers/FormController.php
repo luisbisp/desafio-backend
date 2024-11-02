@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Form;
 use App\Models\Respondent;
+use App\Services\FormService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -35,6 +36,12 @@ class FormController extends Controller
         };
 
 		$validData['user_id'] = auth()->user()->public_id;
+		if($validData['notification']['respondent_email']){
+			$hasEmailField = FormService::verifyFormFields($validData['fields']);
+			if (!$hasEmailField) {
+				return response(["error" => "To send emails to respondents there must be an email field"], 400);
+			}
+		}
 
 		return response(["data" => Form::create($validData)], 201);
 	}
@@ -52,6 +59,11 @@ class FormController extends Controller
 
 		$validatedData = $request->validate([
 			'title' => 'required|max:255',
+			'notification.email' => 'required|boolean',
+			'notification.whatsapp' => 'required|boolean',
+			'notification.respondent_email' => 'required|boolean',
+			'notification.webhook.active' => 'required|boolean',
+			'notification.webhook.url' => 'required|string',
 			'fields' => 'required|array',
             'fields.*.label' => 'required|string',
 			'fields.*.type' => 'required|string',

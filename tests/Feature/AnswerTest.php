@@ -174,6 +174,7 @@ class AnswerTest extends TestCase
 		);
 	}
 
+	/** @test */
 	public function test_form_completed_send_email_notification_to_respondent()
 	{
 		Notification::fake();
@@ -213,7 +214,46 @@ class AnswerTest extends TestCase
 	}
 
 	/** @test */
-	public function test_form_completed_send_webhook(){
+	public function test_form_completed_send_email_notification_to_respondent_with_invalid_email()
+	{
+		Notification::fake();
+		$user = User::factory()->create();
+		$form = Form::factory()->create([
+			'user_id' => $user->public_id,
+			'notification' => [
+				'email' => false,
+				'whatsapp' => false,
+				'respondent_email' => true,
+				'webhook' => [
+					'active' => false,
+					'url' => null,
+				]
+			]
+		]);
+
+		$respondent = Respondent::factory()->for($form)->create();
+		$answer = Answer::factory()->for($form)->for($respondent)->make([
+			'value' => 'invalid-email',
+			'type' => 'email',
+		]);
+		$answer->is_last = true;
+
+		$post = $this->post('/api/answers', $answer->toArray());
+
+		$this->assertNotNull($post['data']['respondent']);
+
+		$notificationService = new FormNotificationService();
+		$notificationService->notifyFormRespondentEmail($form, $respondent);
+	
+		Notification::assertNotSentTo(
+			new AnonymousNotifiable,
+			NotificationUser::class
+		);
+	}
+
+	/** @test */
+	public function test_form_completed_send_webhook()
+	{
 		Http::fake();
 		$user = User::factory()->create();
 		$form = Form::factory()->create([
@@ -238,7 +278,7 @@ class AnswerTest extends TestCase
 		$this->assertNotNull($post['data']['respondent']);
 
 		$service = new FormNotificationService();
-		$service->notifyFormCreatorWenhook($form, $respondent);
+		$service->notifyFormCreatorWebhook($form, $respondent);
 
 		Http::assertSent(function ($request) use ($form) {
 			return $request->data()['form'] === $form;
