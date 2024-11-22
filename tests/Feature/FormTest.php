@@ -69,17 +69,21 @@ class FormTest extends TestCase
 		$form = Form::factory()->for($user)->create([
 			'show_time_to_complete' => true
 		]);
-		$formMetrics = FormMetrics::factory()->for($form)->create(); 
+		FormMetrics::factory()->for($form)->create([
+			'total_respondents' => 5,
+			'total_time' => 1000
+		]); 
 
 		$response = $this->actingAs($user)->get("/api/forms/$form->slug");
-
-		// dd($response->json());
 
 		$response->assertStatus(200);
 		$response->assertJson($form->toArray());
 
 		$this->assertArrayHasKey('time_to_complete', $response->json());
 		$this->assertNotNull($response->json()['time_to_complete']);
+
+		//verificando se o calculo está correto
+		$this->assertEquals(200, $response->json()['time_to_complete']);
 	}
 
 	public function test_dont_show_form_with_time_to_complete()
@@ -132,6 +136,7 @@ class FormTest extends TestCase
 		$put->assertStatus(200);
 		$this->assertDatabaseHas('forms', [
 			'title' => 'Updated Title',
+			'show_time_to_complete' => true
 		]);
 	}
 
