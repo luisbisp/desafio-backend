@@ -7,8 +7,6 @@ use App\Models\Respondent;
 use App\Models\Form;
 use Illuminate\Http\Request;
 use App\Services\FormNotificationService;
-use App\Services\MetricsService;
-use Tests\Feature\Metrics;
 
 class AnswerController extends Controller
 {
@@ -57,9 +55,6 @@ class AnswerController extends Controller
 			$notification->notifyFormCreatorWhatsapp($form,  $respondent);
 			$notification->notifyFormCreatorWebhook($form,  $respondent);
 			$notification->notifyFormRespondentEmail($form,  $respondent);
-
-			$updateTimeMetric = new MetricsService();
-			$updateTimeMetric->updateFormTime($answer);
 			
 		}
 
