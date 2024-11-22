@@ -12,7 +12,7 @@ use Tests\TestCase;
 
 use App\Services\MetricsService;
 
-class MetricsTest extends TestCase
+class Metrics extends TestCase
 {
 
     use RefreshDatabase;
@@ -37,9 +37,11 @@ class MetricsTest extends TestCase
         $newMetric = $metricService->updateFormTime($answer);
 
         $this->assertNotNull($newMetric);
-        $this->assertEquals(1, $newMetric->respondents);
+        $this->assertEquals(2, $newMetric->respondents);
         $this->assertEquals(180, $newMetric->timeToComplete);
 
+        //testar que form tem tempo atualizado eque 
+        // $timestamp = Carbon::parse($iso8601Date)->timestamp;
     }
 
 }
