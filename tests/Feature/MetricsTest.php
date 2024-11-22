@@ -63,6 +63,17 @@ class MetricsTest extends TestCase
             'total_time' => 360,
             'total_respondents' => 2,
         ]);
+
+
+        //testando se não incrementa se não for a ultima resposta(completa)
+        $answer = Answer::factory()->for($form)->for($respondent)->make();
+        $post = $this->post('/api/answers', $answer->toArray());
+
+        $this->assertDatabaseHas('form_metrics', [
+            'form_id' => $form->slug,
+            'total_time' => 360,
+            'total_respondents' => 2,
+        ]);
     }
 
 }

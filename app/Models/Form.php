@@ -15,7 +15,7 @@ class Form extends Model
 {
 	use HasFactory;
 
-	protected $fillable = ['user_id', 'slug', 'title', 'fields', 'notification'];
+	protected $fillable = ['user_id', 'slug', 'title', 'fields', 'notification', 'show_time_to_complete'];
 	protected $casts = [
         'fields' => 'array',
         'notification' => 'array',
@@ -44,6 +44,10 @@ class Form extends Model
 	public function user()
 	{
 		return $this->belongsTo(User::class, 'user_id', 'public_id');
+	}
+    public function formMetrics()
+	{
+		return $this->hasOne(FormMetrics::class, 'form_id', 'slug');
 	}
 
 	public function respondents()

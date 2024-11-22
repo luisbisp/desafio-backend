@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\Form;
 use App\Models\User;
 use App\Models\Answer;
+use App\Models\FormMetrics;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -62,6 +63,43 @@ class FormTest extends TestCase
 		$response->assertJson($form->toArray());
 	}
 
+	public function test_show_form_with_time_to_complete()
+	{
+		$user = User::factory()->create();
+		$form = Form::factory()->for($user)->create([
+			'show_time_to_complete' => true
+		]);
+		$formMetrics = FormMetrics::factory()->for($form)->create(); 
+
+		$response = $this->actingAs($user)->get("/api/forms/$form->slug");
+
+		// dd($response->json());
+
+		$response->assertStatus(200);
+		$response->assertJson($form->toArray());
+
+		$this->assertArrayHasKey('time_to_complete', $response->json());
+		$this->assertNotNull($response->json()['time_to_complete']);
+	}
+
+	public function test_dont_show_form_with_time_to_complete()
+	{
+		$user = User::factory()->create();
+		$form = Form::factory()->for($user)->create([
+			'show_time_to_complete' => false
+		]);
+		$formMetrics = FormMetrics::factory()->for($form)->create(); 
+
+		$response = $this->actingAs($user)->get("/api/forms/$form->slug");
+
+		// dd($response->json());
+
+		$response->assertStatus(200);
+		$response->assertJson($form->toArray());
+		
+		$this->assertArrayNotHasKey('time_to_complete', $response->json());
+	}
+
 	public function test_user_can_update_form()
 	{
 		$user = User::factory()->create();
@@ -69,6 +107,7 @@ class FormTest extends TestCase
 
 		$updatedData = [
 			'title' => 'Updated Title',
+			'show_time_to_complete' => true,
 			'notification' => [
 				'email' => false,
 				'whatsapp' => false,
