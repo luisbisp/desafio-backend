@@ -10,7 +10,7 @@
 # também deve configurar o @host de acordo com o endereço do seu
 # ambiente atual.
 
-@host = http://localhost
+@host = http://localhost:8000
 @token = {{userCreate.response.body.access_token}}
 @slug = {{formCreate.response.body.data.slug}}
 
