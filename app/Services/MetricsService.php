@@ -24,5 +24,8 @@ class MetricsService
         $newMetric->increment('total_time', $timeToComplete);
         $newMetric->increment('total_respondents');
 
+        $newMetric->refresh();
+
+        return $newMetric;
     }
 }
