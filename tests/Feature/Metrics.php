@@ -10,8 +10,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-use App\Services\MetricsService;
-
 class Metrics extends TestCase
 {
 
@@ -33,12 +31,13 @@ class Metrics extends TestCase
         
         $this->assertNotNull($post['data']['respondent']);
 
-        $metricService = new MetricsService();
-        $newMetric = $metricService->updateFormTime($answer);
+        $metricService = new MetricService();
+        $newMetric = $metricService->updateFormTime($form);
 
         $this->assertNotNull($newMetric);
         $this->assertEquals(2, $newMetric->respondents);
         $this->assertEquals(180, $newMetric->timeToComplete);
+        $this->assertEquals(150, $newMetric->averageTime);
 
         //testar que form tem tempo atualizado eque 
         // $timestamp = Carbon::parse($iso8601Date)->timestamp;
