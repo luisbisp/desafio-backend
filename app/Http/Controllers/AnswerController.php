@@ -7,6 +7,8 @@ use App\Models\Respondent;
 use App\Models\Form;
 use Illuminate\Http\Request;
 use App\Services\FormNotificationService;
+use App\Services\MetricsService;
+use Tests\Feature\Metrics;
 
 class AnswerController extends Controller
 {
@@ -47,14 +49,16 @@ class AnswerController extends Controller
 		if ($request->has("is_last")) {
 			$respondent = $answer->respondent;
 			$respondent->setAsCompleted();
+			$formId = $answer->form_id;
 
-
-			$form = Form::where('slug', $answer->form_id)->first();
+			$form = Form::where('slug', $formId)->first();
 			$notification = new FormNotificationService();
 			$notification->notifyFormCreatorEmail($form,  $respondent);
 			$notification->notifyFormCreatorWhatsapp($form,  $respondent);
 			$notification->notifyFormCreatorWebhook($form,  $respondent);
 			$notification->notifyFormRespondentEmail($form,  $respondent);
+
+			(new MetricsService())->updateFormTime($respondent, $formId);
 			
 		}
 

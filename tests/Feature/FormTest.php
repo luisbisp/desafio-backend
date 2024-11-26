@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\Form;
 use App\Models\User;
 use App\Models\Answer;
+use App\Models\FormMetrics;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -19,6 +20,7 @@ class FormTest extends TestCase
 
 		$formData = [
 			'title' => 'Example Form ' . time(),
+			'show_time_to_complete' => true,
 			'notification' => [
 				'email' => false,
 				'whatsapp' => false,
@@ -62,6 +64,47 @@ class FormTest extends TestCase
 		$response->assertJson($form->toArray());
 	}
 
+	public function test_show_form_with_time_to_complete()
+	{
+		$user = User::factory()->create();
+		$form = Form::factory()->for($user)->create([
+			'show_time_to_complete' => true
+		]);
+
+		$totalRespondents = 5;
+		$totalTime = 1000;
+
+		FormMetrics::factory()->for($form)->create([
+			'total_respondents' => $totalRespondents,
+			'total_time' => $totalTime
+		]); 
+
+		$response = $this->actingAs($user)->get("/api/forms/$form->slug");
+
+		$response->assertStatus(200);
+		$response->assertJson($form->toArray());
+
+		$this->assertArrayHasKey('time_to_complete', $response->json());
+		$this->assertNotNull($response->json()['time_to_complete']);
+
+		//verificando se o calculo está correto
+		$expectedResult = $totalTime / $totalRespondents;
+		$this->assertEquals($expectedResult, $response->time_to_complete);
+	}
+
+	public function test_dont_show_form_with_time_to_complete()
+	{
+		$user = User::factory()->create();
+		$form = Form::factory()->for($user)->create([
+			'show_time_to_complete' => false
+		]);
+		FormMetrics::factory()->for($form)->create(); 
+
+		$response = $this->actingAs($user)->get("/api/forms/$form->slug");
+	
+		$this->assertNull($response->json()['time_to_complete']);
+	}
+
 	public function test_user_can_update_form()
 	{
 		$user = User::factory()->create();
@@ -69,6 +112,7 @@ class FormTest extends TestCase
 
 		$updatedData = [
 			'title' => 'Updated Title',
+			'show_time_to_complete' => true,
 			'notification' => [
 				'email' => false,
 				'whatsapp' => false,
@@ -93,6 +137,7 @@ class FormTest extends TestCase
 		$put->assertStatus(200);
 		$this->assertDatabaseHas('forms', [
 			'title' => 'Updated Title',
+			'show_time_to_complete' => true
 		]);
 	}
 
@@ -196,6 +241,7 @@ class FormTest extends TestCase
 
 		$formData = [
 			'title' => 'Example Form ' . time(),
+			'show_time_to_complete' => true,
 			'notification' => [
 				'email' => false,
 				'whatsapp' => false,

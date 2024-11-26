@@ -15,7 +15,7 @@ class Form extends Model
 {
 	use HasFactory;
 
-	protected $fillable = ['user_id', 'slug', 'title', 'fields', 'notification'];
+	protected $fillable = ['user_id', 'slug', 'title', 'fields', 'notification', 'show_time_to_complete'];
 	protected $casts = [
         'fields' => 'array',
         'notification' => 'array',
@@ -45,9 +45,26 @@ class Form extends Model
 	{
 		return $this->belongsTo(User::class, 'user_id', 'public_id');
 	}
+    public function formMetrics()
+	{
+		return $this->hasOne(FormMetrics::class, 'form_id', 'slug');
+	}
 
 	public function respondents()
 	{
 		return $this->hasMany(Respondent::class);
 	}
+
+    public function getTimeToComplete()
+    {
+        $formMetrics = $this->formMetrics;
+
+        if (!$formMetrics || $formMetrics->total_respondents == 0) {
+            return null;
+        }
+
+        $result = $formMetrics->total_time / $formMetrics->total_respondents;
+
+        return $result;
+    }
 }

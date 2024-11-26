@@ -10,7 +10,7 @@
 # também deve configurar o @host de acordo com o endereço do seu
 # ambiente atual.
 
-@host = http://localhost:8000
+@host = http://localhost
 @token = {{userCreate.response.body.access_token}}
 @slug = {{formCreate.response.body.data.slug}}
 
@@ -47,8 +47,9 @@ Authorization: Bearer {{token}}
 
 {
     "title": "Test form",
+    "show_time_to_complete": true,
     "notification": {
-        "email": true,
+        "email": false,
         "whatsapp": false,
         "respondent_email": true,
         "webhook": {
@@ -154,12 +155,13 @@ Authorization: Bearer {{token}}
 
 {
     "title": "Test form",
+    "show_time_to_complete": false,
     "notification": {
-        "email": true,
-        "whatsapp": true,
-        "respondent_email": true,
+        "email": false,
+        "whatsapp": false,
+        "respondent_email": false,
         "webhook": {
-            "active": true,
+            "active": false,
             "url": "https://webhook.site/d1ec3f57-cc28-435d-9cbd-bd99d9ca9e64"
         }
     },

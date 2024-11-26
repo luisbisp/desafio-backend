@@ -23,6 +23,16 @@ class FormFactory extends Factory
 			'slug' => IdService::create(IdType::FORM),
 			// 'user_id' => IdService::create(IdType::USER),
 			'title' => $this->faker->sentence,
+			// 'show_time_to_complete' => false,
+			'notification' => [
+				'email' => false,
+				'whatsapp' => false,
+				'respondent_email' => false,
+				'webhook' => [
+					'active' => false,
+					'url' => 'testwebhook',
+				]
+			],
 			'fields' => [
 				[
 					'type' => 'text',
