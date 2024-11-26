@@ -41,7 +41,12 @@ class AnswerController extends Controller
 		]);
 
 		$metrics = new MetricsService();
-		$metrics->updateMetricSubmitAnswer($answer->form_id, $answer->field_id);
+		$type = 'submit';
+		$metrics->updateAnswerMetrics([
+			'form_id' => $answer->form_id,
+			'field_id' => $answer->field_id,
+			'type' => $type
+		]);
 
 		/**
 		 * O parametro "is_last" determina que essa resposta
@@ -65,6 +70,17 @@ class AnswerController extends Controller
 		}
 
 		return response()->json(['data' => $answer], 201);
+	}
+
+	public function storeMetrics(Request $request) {
+
+		$validated = $request->validate([
+			'form_id' => 'required|exists:forms,slug',
+			'field_id' => 'required|exists:answers,field_id',
+			'type' => 'required|in:view',
+		]);
+
+		(new MetricsService())->updateAnswerMetrics($validated);
 	}
 
 	public function index() {}

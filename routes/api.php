@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function (){
     Route::apiResource('forms', FormController::class)->except('show');
     Route::apiResource('answers', AnswerController::class)->except(["store", "update"]);
     Route::apiResource('respondents', RespondentController::class);
+
+    Route::post('answers/metrics', [AnswerController::class, 'storeMetrics'])->name("answers.metrics");
 });
 
 

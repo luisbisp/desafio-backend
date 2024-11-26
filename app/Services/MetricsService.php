@@ -8,6 +8,7 @@ use App\Models\Form;
 use App\Models\FormMetrics;
 
 use Carbon\Carbon;
+use GuzzleHttp\Psr7\Request;
 
 class MetricsService
 {
@@ -27,8 +28,12 @@ class MetricsService
         $newMetric->increment('total_respondents');
     }
 
-    public function updateMetricSubmitAnswer($form_id, $field_id)
+
+    public function updateAnswerMetrics($answer)
     {
+        $form_id = $answer['form_id'];
+        $field_id = $answer['field_id'];
+
         $newMetric = AnswersMetrics::firstOrNew([
             'form_id' => $form_id,
             'field_id' => $field_id,
@@ -36,8 +41,11 @@ class MetricsService
 
         !$newMetric->exists && $newMetric->save();
 
-        $newMetric->increment('submits');
+        match ($answer['type']) {
+            'submit' =>  $newMetric->increment('submits'),
+            'view' => $newMetric->increment('view'),
+        };
 
-        // dd($newMetric);
     }
+
 }

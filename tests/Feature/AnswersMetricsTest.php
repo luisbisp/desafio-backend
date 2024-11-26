@@ -36,4 +36,29 @@ class AnswersMetricsTest extends TestCase
             'submits' => $numSubmits
         ]);
     }
+
+    /** @test */
+    public function test_update_view_metrics()
+    {
+        $user = User::factory()->create();
+        $form = Form::factory()->for($user)->create();
+        $respondent = Respondent::factory()->for($form)->create();
+        $answer = Answer::factory()->for($form)->for($respondent)->create();
+
+        $this->post('/api/answers/metrics', [
+            'form_id' => $form->slug,
+            'field_id' => $answer->field_id,
+            'type' => 'view'
+        ]);
+    
+        $numViews = 1;
+        $numSubmits = 0;
+    
+        $this->assertDatabaseHas('answers_metrics', [
+            'form_id' => $form->slug,
+            'field_id' => $answer->field_id,
+            'views' => $numViews,
+            'submits' => $numSubmits
+        ]);
+    }
 }
