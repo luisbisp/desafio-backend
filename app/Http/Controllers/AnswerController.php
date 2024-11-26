@@ -40,6 +40,8 @@ class AnswerController extends Controller
 			'field_id' => $validated['field_id']
 		]);
 
+		$metrics = new MetricsService();
+		$metrics->updateMetricSubmitAnswer($answer->form_id, $answer->field_id);
 
 		/**
 		 * O parametro "is_last" determina que essa resposta
@@ -58,7 +60,7 @@ class AnswerController extends Controller
 			$notification->notifyFormCreatorWebhook($form,  $respondent);
 			$notification->notifyFormRespondentEmail($form,  $respondent);
 
-			(new MetricsService())->updateFormTime($respondent, $formId);
+			$metrics->updateFormTime($respondent, $formId);
 			
 		}
 
