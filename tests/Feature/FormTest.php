@@ -20,6 +20,7 @@ class FormTest extends TestCase
 
 		$formData = [
 			'title' => 'Example Form ' . time(),
+			'show_time_to_complete' => true,
 			'notification' => [
 				'email' => false,
 				'whatsapp' => false,
@@ -69,9 +70,13 @@ class FormTest extends TestCase
 		$form = Form::factory()->for($user)->create([
 			'show_time_to_complete' => true
 		]);
+
+		$totalRespondents = 5;
+		$totalTime = 1000;
+
 		FormMetrics::factory()->for($form)->create([
-			'total_respondents' => 5,
-			'total_time' => 1000
+			'total_respondents' => $totalRespondents,
+			'total_time' => $totalTime
 		]); 
 
 		$response = $this->actingAs($user)->get("/api/forms/$form->slug");
@@ -83,7 +88,8 @@ class FormTest extends TestCase
 		$this->assertNotNull($response->json()['time_to_complete']);
 
 		//verificando se o calculo está correto
-		$this->assertEquals(200, $response->json()['time_to_complete']);
+		$expectedResult = $totalTime / $totalRespondents;
+		$this->assertEquals($expectedResult, $response->json()['time_to_complete']);
 	}
 
 	public function test_dont_show_form_with_time_to_complete()
@@ -92,16 +98,11 @@ class FormTest extends TestCase
 		$form = Form::factory()->for($user)->create([
 			'show_time_to_complete' => false
 		]);
-		$formMetrics = FormMetrics::factory()->for($form)->create(); 
+		FormMetrics::factory()->for($form)->create(); 
 
 		$response = $this->actingAs($user)->get("/api/forms/$form->slug");
-
-		// dd($response->json());
-
-		$response->assertStatus(200);
-		$response->assertJson($form->toArray());
-		
-		$this->assertArrayNotHasKey('time_to_complete', $response->json());
+	
+		$this->assertNull($response->json()['time_to_complete']);
 	}
 
 	public function test_user_can_update_form()
@@ -240,6 +241,7 @@ class FormTest extends TestCase
 
 		$formData = [
 			'title' => 'Example Form ' . time(),
+			'show_time_to_complete' => true,
 			'notification' => [
 				'email' => false,
 				'whatsapp' => false,

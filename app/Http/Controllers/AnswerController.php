@@ -49,17 +49,16 @@ class AnswerController extends Controller
 		if ($request->has("is_last")) {
 			$respondent = $answer->respondent;
 			$respondent->setAsCompleted();
+			$formId = $answer->form_id;
 
-
-			$form = Form::where('slug', $answer->form_id)->first();
+			$form = Form::where('slug', $formId)->first();
 			$notification = new FormNotificationService();
 			$notification->notifyFormCreatorEmail($form,  $respondent);
 			$notification->notifyFormCreatorWhatsapp($form,  $respondent);
 			$notification->notifyFormCreatorWebhook($form,  $respondent);
 			$notification->notifyFormRespondentEmail($form,  $respondent);
 
-			$updateTimeMetric = new MetricsService();
-			$updateTimeMetric->updateFormTime($answer);
+			(new MetricsService())->updateFormTime($respondent, $formId);
 			
 		}
 

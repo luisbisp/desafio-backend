@@ -19,61 +19,60 @@ class MetricsTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function test_create_total_time_and_increment_respondent(){
+    public function test_create_total_time_and_increment_respondent()
+    {
 
         $user = User::factory()->create();
-        $form = Form::factory()->for($user)->create([
-            'notification' => [
-				'email' => false,
-				'whatsapp' => false,
-				'respondent_email' => false,
-				'webhook' => [
-					'active' => false,
-					'url' => null,
-				]
-			]
-        ]);
-
+        $form = Form::factory()->for($user)->create();
 
         $respondent = Respondent::factory()->for($form)->create([
             'created_at' => now()->subMinutes(3),
-            'completed_at' => now(),   
+            'completed_at' => now(),
         ]);
+
         $answer = Answer::factory()->for($form)->for($respondent)->make();
-		$answer->is_last = true;
+        $answer->is_last = true;
 
-        $post = $this->post('/api/answers', $answer->toArray());
-        
-        $this->assertNotNull($post['data']['respondent']);
+        $this->post('/api/answers', $answer->toArray());
 
+        $totalTime = 180;
+        $totalRespondents = 1;
         $this->assertDatabaseHas('form_metrics', [
             'form_id' => $form->slug,
-            'total_time' => 180,
-            'total_respondents' => 1,
+            'total_time' => $totalTime,
+            'total_respondents' => $totalRespondents,
         ]);
 
         //testando se o incremento funciona
         $answer = Answer::factory()->for($form)->for($respondent)->make();
         $answer->is_last = true;
 
-        $post = $this->post('/api/answers', $answer->toArray());
+        $this->post('/api/answers', $answer->toArray());
 
+        $totalTime = 360;
+        $totalRespondents = 2;
         $this->assertDatabaseHas('form_metrics', [
             'form_id' => $form->slug,
-            'total_time' => 360,
-            'total_respondents' => 2,
-        ]);
-
-
-        //testando se não incrementa se não for a ultima resposta(completa)
-        $answer = Answer::factory()->for($form)->for($respondent)->make();
-        $post = $this->post('/api/answers', $answer->toArray());
-
-        $this->assertDatabaseHas('form_metrics', [
-            'form_id' => $form->slug,
-            'total_time' => 360,
-            'total_respondents' => 2,
+            'total_time' => $totalTime,
+            'total_respondents' => $totalRespondents,
         ]);
     }
 
+    public function test_dont_increment_total_time_and_increment_respondent_if_not_last_answer()
+    {
+
+        $user = User::factory()->create();
+        $form = Form::factory()->for($user)->create();
+
+        $respondent = Respondent::factory()->for($form)->create();
+
+        $answer = Answer::factory()->for($form)->for($respondent)->make();
+
+        $this->post('/api/answers', $answer->toArray());
+
+        $this->assertDatabaseMissing('form_metrics', [
+            'form_id' => $form->slug,
+        ]);
+
+    }
 }

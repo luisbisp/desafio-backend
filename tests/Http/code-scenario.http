@@ -49,7 +49,7 @@ Authorization: Bearer {{token}}
     "title": "Test form",
     "show_time_to_complete": true,
     "notification": {
-        "email": true,
+        "email": false,
         "whatsapp": false,
         "respondent_email": true,
         "webhook": {

@@ -54,4 +54,17 @@ class Form extends Model
 	{
 		return $this->hasMany(Respondent::class);
 	}
+
+    public function getTimeToComplete()
+    {
+        $formMetrics = $this->formMetrics;
+
+        if (!$formMetrics || $formMetrics->total_respondents == 0) {
+            return null;
+        }
+
+        $result = $formMetrics->total_time / $formMetrics->total_respondents;
+
+        return $result;
+    }
 }

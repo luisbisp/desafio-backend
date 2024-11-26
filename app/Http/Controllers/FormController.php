@@ -22,7 +22,7 @@ class FormController extends Controller
 	{
 		$validData = $request->validate([
 			'title' => 'required|max:255',
-			'show_time_to_complete' => 'nullable|boolean',
+			'show_time_to_complete' => 'required|boolean',
 			'notification.email' => 'required|boolean',
 			'notification.whatsapp' => 'required|boolean',
 			'notification.respondent_email' => 'required|boolean',
@@ -51,14 +51,7 @@ class FormController extends Controller
 
 	public function show(Form $form)
 	{
-
-		if ($form->show_time_to_complete == true) {
-			$form->load('formMetrics');
-			$form->time_to_complete = $form->formMetrics ? $form->formMetrics->total_time / $form->formMetrics->total_respondents : null;
-			$form->makeHidden(['formMetrics']);
-		}
-
-		$form->show_time_to_complete = (bool) $form->show_time_to_complete;
+		$form->time_to_complete = $form->show_time_to_complete ? $form->getTimeToComplete() : null;
 
 		return $form;
 	}

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('form_id')->index();
-            $table->string('total_time')->default(0);
+            $table->integer('total_time')->default(0);
             $table->integer('total_respondents')->default(0);
         });
     }

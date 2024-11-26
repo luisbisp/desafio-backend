@@ -11,14 +11,14 @@ use Carbon\Carbon;
 class MetricsService
 {
 
-    public function updateFormTime(Answer $answer)
+    public function updateFormTime($respondent, $form_id)
     {
-        $start = Carbon::parse($answer->respondent->created_at);
-        $end = Carbon::parse($answer->respondent->completed_at);
- 
+        $start = Carbon::parse($respondent->created_at);
+        $end = Carbon::parse($respondent->completed_at);
+
         $timeToComplete = $start->diffInSeconds($end);
 
-        $newMetric = FormMetrics::firstOrNew(['form_id' => $answer->form_id]);
+        $newMetric = FormMetrics::firstOrNew(['form_id' => $form_id]);
 
         !$newMetric->exists && $newMetric->save();
 
