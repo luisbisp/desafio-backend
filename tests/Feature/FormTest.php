@@ -89,7 +89,7 @@ class FormTest extends TestCase
 
 		//verificando se o calculo está correto
 		$expectedResult = $totalTime / $totalRespondents;
-		$this->assertEquals($expectedResult, $response->json()['time_to_complete']);
+		$this->assertEquals($expectedResult, $response->time_to_complete);
 	}
 
 	public function test_dont_show_form_with_time_to_complete()
