@@ -10,10 +10,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-use App\Services\MetricsService;
+
 use Illuminate\Support\Facades\Log;
 
-class MetricsTest extends TestCase
+class FormMetricsTest extends TestCase
 {
 
     use RefreshDatabase;
