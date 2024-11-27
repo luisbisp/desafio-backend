@@ -182,3 +182,24 @@ Authorization: Bearer {{token}}
         "required": false
     }]
 }
+
+
+### adicionando view
+# @name updateViewAnswer
+
+POST {{host}}/api/answers/metrics HTTP/1.1
+content-type: application/json
+
+{
+    "form_id": "{{slug}}",
+    "field_id": "{{form.response.body.fields.1.field_id}}",
+    "type": "view"
+}
+
+
+### Acessando answers metrics
+
+# @name answersMetrics
+GET {{host}}/api/forms/{{slug}}/metrics HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}

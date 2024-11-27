@@ -8,11 +8,9 @@ use App\Models\Form;
 use Illuminate\Http\Request;
 use App\Services\FormNotificationService;
 use App\Services\MetricsService;
-use Tests\Feature\Metrics;
 
 class AnswerController extends Controller
 {
-
 
 	/**
 	 * Store a newly created resource in storage.
@@ -66,21 +64,9 @@ class AnswerController extends Controller
 			$notification->notifyFormRespondentEmail($form,  $respondent);
 
 			$metrics->updateFormTime($respondent, $formId);
-			
 		}
 
 		return response()->json(['data' => $answer], 201);
-	}
-
-	public function storeMetrics(Request $request) {
-
-		$validated = $request->validate([
-			'form_id' => 'required|exists:forms,slug',
-			'field_id' => 'required|exists:answers,field_id',
-			'type' => 'required|in:view',
-		]);
-
-		(new MetricsService())->updateAnswerMetrics($validated);
 	}
 
 	public function index() {}

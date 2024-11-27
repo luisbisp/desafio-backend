@@ -43,7 +43,7 @@ class MetricsService
 
         match ($answer['type']) {
             'submit' =>  $newMetric->increment('submits'),
-            'view' => $newMetric->increment('view'),
+            'view' => $newMetric->increment('views'),
         };
 
     }

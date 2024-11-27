@@ -42,5 +42,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('forms:delete', function (User $user, Form $form) {
             return $user->public_id === $form->user_id;
         });
+
+        Gate::define('metrics:view', function (User $user, Form $form) {
+            return $user->public_id === $form->user_id;
+        });
     }
 }
