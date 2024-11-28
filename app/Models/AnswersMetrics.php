@@ -16,4 +16,13 @@ class AnswersMetrics extends Model
     {
         return $this->belongsTo(Form::class, 'form_id', 'slug');
     }
+
+    public function calculateDropOff()
+    {
+        $views = $this->views;
+        $submits = $this->submits;
+
+        $this->drop_off = $views > 0 ? round($submits / $views * 100).'%' : '0%';
+
+    }
 }

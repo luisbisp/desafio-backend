@@ -53,7 +53,6 @@ class AnswersMetricsTest extends TestCase
 
         $post->assertStatus(200);
 
-
         $numViews = 1;
         $numSubmits = 0;
     

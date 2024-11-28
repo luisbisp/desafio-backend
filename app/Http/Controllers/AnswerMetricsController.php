@@ -20,7 +20,8 @@ class AnswerMetricsController extends Controller
 			return response([], 404);
 		};
 
-		$answersMetrics = AnswersMetrics::where('form_id', $formId)->get();
+		$answersMetrics = AnswersMetrics::where('form_id', $formId)
+			->get()->each->calculateDropOff();
 
 		return $answersMetrics;
 	}
@@ -43,7 +44,7 @@ class AnswerMetricsController extends Controller
 		}
 
 		$requestKey = 'answer_metrics_' . uniqid();
-		
+
 		$expirationTime = 300;
 		Redis::setex($requestKey, $expirationTime, json_encode($validated));
 
@@ -51,6 +52,5 @@ class AnswerMetricsController extends Controller
 		UpdateViewAnswerMetrics::dispatch($requestKey)->delay(now()->addMinutes($jobExecutionTime));
 
 		return response()->json(['message' => 'Data processed.'], 200);
-
 	}
 }
