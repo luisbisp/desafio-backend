@@ -15,7 +15,7 @@ class AnswerMetricsController extends Controller
 
 		$form = Form::where('slug', $formId)->first();
 
-		if (Gate::denies('forms:update', $form)) {
+		if (Gate::denies('metrics:view', $form)) {
 			return response([], 404);
 		};
 
