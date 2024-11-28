@@ -2,13 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\UpdateViewAnswerMetrics;
 use App\Models\Answer;
 use App\Models\AnswersMetrics;
 use App\Models\Form;
 use App\Models\Respondent;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Redis;
 use Tests\TestCase;
 
 class AnswersMetricsTest extends TestCase
@@ -39,8 +41,11 @@ class AnswersMetricsTest extends TestCase
     }
 
     /** @test */
-    public function test_update_view_answer_metrics()
+    public function test_update_view_answer_metrics_fake_job()
     {
+
+        Bus::fake();
+
         $user = User::factory()->create();
         $form = Form::factory()->for($user)->create();
         $fieldId = $form->fields[0]['field_id'];
@@ -53,6 +58,27 @@ class AnswersMetricsTest extends TestCase
 
         $post->assertStatus(200);
 
+        Bus::assertDispatched(UpdateViewAnswerMetrics::class);
+
+    }
+
+    public function test_update_view_answer_metrics(){
+
+        $user = User::factory()->create();
+        $form = Form::factory()->for($user)->create();
+        $fieldId = $form->fields[0]['field_id'];
+
+        $answer = [
+            'form_id' => $form->slug,
+            'field_id' => $fieldId,
+            'type' => 'view'
+        ];
+
+        $requestKey = 'answer_metrics_' . uniqid();
+		$expirationTime = 300;
+        Redis::setex($requestKey, $expirationTime, json_encode($answer));
+        UpdateViewAnswerMetrics::dispatchSync($requestKey);
+
         $numViews = 1;
         $numSubmits = 0;
     
@@ -62,7 +88,9 @@ class AnswersMetricsTest extends TestCase
             'views' => $numViews,
             'submits' => $numSubmits
         ]);
+
     }
+
 
     /** @test */
     public function test_cant_update_invalid_answer_metrics()
