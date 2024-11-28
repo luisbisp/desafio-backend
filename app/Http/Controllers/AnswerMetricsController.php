@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\UpdateViewAnswerMetrics;
 use App\Models\AnswersMetrics;
 use App\Models\Form;
-use App\Services\MetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Redis;
 
 class AnswerMetricsController extends Controller
 {
@@ -41,8 +42,15 @@ class AnswerMetricsController extends Controller
 			return response()->json(['error' => 'Invalid field_id for the provided form_id'], 422);
 		}
 
-		(new MetricsService())->updateAnswerMetrics($validated);
+		$requestKey = 'answer_metrics_' . uniqid();
+		
+		$expirationTime = 300;
+		Redis::setex($requestKey, $expirationTime, json_encode($validated));
 
-		return response()->json(['data' => $validated], 200);
+		$jobExecutionTime = 1;
+		UpdateViewAnswerMetrics::dispatch($requestKey)->delay(now()->addMinutes($jobExecutionTime));
+
+		return response()->json(['message' => 'Data processed.'], 200);
+
 	}
 }

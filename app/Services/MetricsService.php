@@ -2,13 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\Answer;
 use App\Models\AnswersMetrics;
-use App\Models\Form;
 use App\Models\FormMetrics;
-
 use Carbon\Carbon;
-use GuzzleHttp\Psr7\Request;
 
 class MetricsService
 {
