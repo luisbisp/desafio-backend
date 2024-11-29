@@ -51,7 +51,7 @@ Authorization: Bearer {{token}}
     "notification": {
         "email": false,
         "whatsapp": false,
-        "respondent_email": true,
+        "respondent_email": false,
         "webhook": {
             "active": false,
             "url": "https://webhook.site/d1ec3f57-cc28-435d-9cbd-bd99d9ca9e64"
@@ -169,17 +169,20 @@ Authorization: Bearer {{token}}
     {
         "label": "Qual seu nome?",
         "type": "text",
-        "required": false
+        "required": false,
+        "field_id": "{{form.response.body.fields.0.field_id}}"
     },
     {
         "label": "Qual seu email?",
         "type": "email",
-        "required": false
+        "required": false,
+        "field_id": "{{form.response.body.fields.1.field_id}}"
     },
     {
         "label": "Qual seu telefone?",
         "type": "phone",
-        "required": false
+        "required": false,
+        "field_id": "{{form.response.body.fields.2.field_id}}"
     }]
 }
 

@@ -41,7 +41,19 @@ class MetricsService
             'submit' =>  $newMetric->increment('submits'),
             'view' => $newMetric->increment('views'),
         };
+    }
 
+    public function synchronizeAnswerMetrics($oldFields, $updatedFields)
+    {
+
+        $oldIds = collect($oldFields)->pluck('field_id')->toArray();
+        $newIds = collect($updatedFields)->pluck('field_id')->toArray();
+
+        $removedIds = array_diff($oldIds, $newIds);
+
+        foreach ($removedIds as $id) {
+            AnswersMetrics::where('field_id', $id)->delete();
+        }
     }
 
 }
