@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Form;
 use App\Services\MetricsService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,10 +24,21 @@ class UpdateViewAnswerMetrics implements ShouldQueue
 
     public function handle()
     {
+
         $answerData = Redis::get($this->requestKey);
 
         if ($answerData) {
+
             $answerData = json_decode($answerData, true);
+
+            $form = Form::where('slug', $answerData['form_id'])->first();
+            $fieldExists = collect($form->fields)
+                ->contains(fn($field) => $field['field_id'] === $answerData['field_id']);
+    
+            if (!$fieldExists) {
+                Redis::del($this->requestKey);
+                return;
+            }
 
             (new MetricsService())->updateAnswerMetrics($answerData);
        

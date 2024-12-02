@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Jobs\UpdateViewAnswerMetrics;
 use App\Models\AnswersMetrics;
 use App\Models\FormMetrics;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Redis;
 
 class MetricsService
 {
@@ -39,7 +41,7 @@ class MetricsService
 
         match ($answer['type']) {
             'submit' =>  $newMetric->increment('submits'),
-            'view' => $newMetric->increment('views'),
+            'view' => $newMetric->increment('views', $answer['increments']),
         };
     }
 
@@ -56,4 +58,25 @@ class MetricsService
         }
     }
 
+    public function createAnswerMetricsJob($data)
+    {
+        $requestKey = 'answer_metrics_' . $data['form_id'] . '_' . $data['field_id'];
+        $existingData = Redis::get($requestKey);
+
+        if ($existingData) {
+
+            $data = json_decode($existingData, true);
+            $data['increments']++;
+            Redis::set($requestKey, json_encode($data));
+
+        } else {
+
+            $expirationTime = 300;
+            $data['increments'] = 1;
+            Redis::setex($requestKey, $expirationTime, json_encode($data));
+
+            $jobExecutionTime = 1;
+            UpdateViewAnswerMetrics::dispatch($requestKey)->delay(now()->addMinutes($jobExecutionTime));
+        }
+    }
 }

@@ -67,14 +67,16 @@ class AnswersMetricsTest extends TestCase
         $user = User::factory()->create();
         $form = Form::factory()->for($user)->create();
         $fieldId = $form->fields[0]['field_id'];
+        $numIncrements = 1;
 
         $answer = [
             'form_id' => $form->slug,
             'field_id' => $fieldId,
-            'type' => 'view'
+            'type' => 'view',
+            'increments' => $numIncrements
         ];
 
-        $requestKey = 'answer_metrics_' . uniqid();
+        $requestKey = 'answer_metrics_' . $form->slug . '_' . $fieldId;
         $expirationTime = 300;
         Redis::setex($requestKey, $expirationTime, json_encode($answer));
         UpdateViewAnswerMetrics::dispatchSync($requestKey);
@@ -85,6 +87,38 @@ class AnswersMetricsTest extends TestCase
         $this->assertDatabaseHas('answers_metrics', [
             'form_id' => $form->slug,
             'field_id' => $fieldId,
+            'views' => $numViews,
+            'submits' => $numSubmits
+        ]);
+    }
+
+
+    /** @test */
+    public function test_cant_update_with_invalid_field_id_answer_metrics()
+    {
+        $user = User::factory()->create();
+        $form = Form::factory()->for($user)->create();
+        $fieldId = $form->fields[0]['field_id'];
+        $numIncrements = 1;
+
+        $answer = [
+            'form_id' => $form->slug,
+            'field_id' => 'invalid',
+            'type' => 'view',
+            'increments' => $numIncrements
+        ];
+
+        $requestKey = 'answer_metrics_' . $form->slug . '_' . $fieldId;
+        $expirationTime = 300;
+        Redis::setex($requestKey, $expirationTime, json_encode($answer));
+        UpdateViewAnswerMetrics::dispatchSync($requestKey);
+
+        $numViews = 1;
+        $numSubmits = 0;
+
+        $this->assertDatabaseMissing('answers_metrics', [
+            'form_id' => $form->slug,
+            'field_id' => 'invalid',
             'views' => $numViews,
             'submits' => $numSubmits
         ]);
@@ -123,27 +157,6 @@ class AnswersMetricsTest extends TestCase
         $post = $this->post('/api/answers/metrics', [
             'form_id' => 'invalid',
             'field_id' => $answer->field_id,
-            'type' => 'view'
-        ]);
-
-        $post->assertStatus(422);
-        $this->assertDatabaseMissing('answers_metrics', [
-            'form_id' => $form->slug,
-            'field_id' => $answer->field_id
-        ]);
-    }
-
-    /** @test */
-    public function test_cant_update_with_invalid_field_id_answer_metrics()
-    {
-        $user = User::factory()->create();
-        $form = Form::factory()->for($user)->create();
-        $respondent = Respondent::factory()->for($form)->create();
-        $answer = Answer::factory()->for($form)->for($respondent)->create();
-
-        $post = $this->post('/api/answers/metrics', [
-            'form_id' => $form->slug,
-            'field_id' => 'invalid',
             'type' => 'view'
         ]);
 
@@ -223,6 +236,5 @@ class AnswersMetricsTest extends TestCase
             'form_id' => $form->slug,
             'field_id' => $answersMetrics[1]->field_id
         ]);
-
     }
 }
