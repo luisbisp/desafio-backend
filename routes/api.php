@@ -7,6 +7,7 @@ use App\Http\Controllers\FormController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\AnswerMetricsController;
+use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\RespondentController;
 
 /*
@@ -27,7 +28,7 @@ Route::post('users', [UserController::class, 'store'])->name("users.store");
 Route::post('answers', [AnswerController::class, 'store'])->name("answers.store");
 Route::put('answers', [AnswerController::class, 'update'])->name("answers.update");
 Route::get('forms/{form}', [FormController::class, 'show'])->name("forms.show");
-Route::post('answers/metrics', [AnswerMetricsController::class, 'update'])->name("answers.metrics.update");
+Route::post('metrics/{type}', [MetricsController::class, 'update'])->name("metrics.update");
 
 /** 🗝️ Pivate routes */
 Route::middleware('auth:sanctum')->group(function (){
@@ -36,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function (){
     Route::apiResource('answers', AnswerController::class)->except(["store", "update"]);
     Route::apiResource('respondents', RespondentController::class);
     
-    Route::get('/forms/{form}/metrics', [AnswerMetricsController::class, 'show'])->name("answers.metrics.show");
+    Route::get('metrics/{type}/{form}', [MetricsController::class, 'show'])->name("metrics.show");
 });
 
 

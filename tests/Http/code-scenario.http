@@ -190,12 +190,12 @@ Authorization: Bearer {{token}}
 ### adicionando view
 # @name updateViewAnswer
 
-POST {{host}}/api/answers/metrics HTTP/1.1
+POST {{host}}/api/metrics/answers HTTP/1.1
 content-type: application/json
 
 {
     "form_id": "{{slug}}",
-    "field_id": "{{form.response.body.fields.1.field_id}}",
+    "field_id": "{{form.response.body.fields.2.field_id}}",
     "type": "view"
 }
 
@@ -203,6 +203,6 @@ content-type: application/json
 ### Acessando answers metrics
 
 # @name answersMetrics
-GET {{host}}/api/forms/{{slug}}/metrics HTTP/1.1
+GET {{host}}/api/metrics/answers/{{slug}} HTTP/1.1
 content-type: application/json
 Authorization: Bearer {{token}}

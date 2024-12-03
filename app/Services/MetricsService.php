@@ -7,6 +7,7 @@ use App\Models\AnswersMetrics;
 use App\Models\FormMetrics;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
+use App\Enums\AnswerMetricsType;
 
 class MetricsService
 {
@@ -27,56 +28,47 @@ class MetricsService
     }
 
 
-    public function updateAnswerMetrics($answer)
-    {
-        $form_id = $answer['form_id'];
-        $field_id = $answer['field_id'];
 
+    
+    public function updateAnswerMetrics(AnswerMetricsType $type, $answer)
+    {
         $newMetric = AnswersMetrics::firstOrNew([
-            'form_id' => $form_id,
-            'field_id' => $field_id,
+            'form_id' => $answer['form_id'],
+            'field_id' => $answer['field_id'],
         ]);
 
         !$newMetric->exists && $newMetric->save();
 
-        match ($answer['type']) {
+        match ($type) {
             'submit' =>  $newMetric->increment('submits'),
             'view' => $newMetric->increment('views', $answer['increments']),
         };
     }
 
-    public function synchronizeAnswerMetrics($oldFields, $updatedFields)
+    public function clearDeletedFields($oldFields, $updatedFields)
     {
-
-        $oldIds = collect($oldFields)->pluck('field_id')->toArray();
-        $newIds = collect($updatedFields)->pluck('field_id')->toArray();
+        $oldIds = array_column($oldFields, 'field_id');
+        $newIds = array_column($updatedFields, 'field_id');
 
         $removedIds = array_diff($oldIds, $newIds);
 
-        foreach ($removedIds as $id) {
-            AnswersMetrics::where('field_id', $id)->delete();
-        }
+        AnswersMetrics::whereIn('field_id', $removedIds)->delete();
     }
 
     public function createAnswerMetricsJob($data)
     {
-        $requestKey = 'answer_metrics_' . $data['form_id'] . '_' . $data['field_id'];
+        $requestKey = 'metrics:' . $data['form_id'] . ':' . $data['field_id'];
         $existingData = Redis::get($requestKey);
 
         if ($existingData) {
-
-            $data = json_decode($existingData, true);
-            $data['increments']++;
-            Redis::set($requestKey, json_encode($data));
-
-        } else {
-
-            $expirationTime = 300;
-            $data['increments'] = 1;
-            Redis::setex($requestKey, $expirationTime, json_encode($data));
-
-            $jobExecutionTime = 1;
-            UpdateViewAnswerMetrics::dispatch($requestKey)->delay(now()->addMinutes($jobExecutionTime));
+            Redis::incr($requestKey);
+            return;
         }
+
+        $expirationTime = 300;
+        Redis::setex($requestKey, $expirationTime, 1);
+
+        $jobExecutionTime = 1;
+        UpdateViewAnswerMetrics::dispatch($requestKey)->delay(now()->addMinutes($jobExecutionTime));
     }
 }

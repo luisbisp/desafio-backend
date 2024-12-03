@@ -78,7 +78,7 @@ class FormController extends Controller
 		$oldFields = $form->fields;
 		$form->update($validatedData);
 
-		(new MetricsService())->synchronizeAnswerMetrics($oldFields, $form->fields);
+		(new MetricsService())->clearDeletedFields($oldFields, $form->fields);
 
 		return response()->json(['data' => $form], 200);
 	}

@@ -9,7 +9,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use App\Enums\AnswerMetricsType;
 
 class UpdateViewAnswerMetrics implements ShouldQueue
 {
@@ -25,24 +27,40 @@ class UpdateViewAnswerMetrics implements ShouldQueue
     public function handle()
     {
 
-        $answerData = Redis::get($this->requestKey);
-
-        if ($answerData) {
-
-            $answerData = json_decode($answerData, true);
-
-            $form = Form::where('slug', $answerData['form_id'])->first();
-            $fieldExists = collect($form->fields)
-                ->contains(fn($field) => $field['field_id'] === $answerData['field_id']);
-    
-            if (!$fieldExists) {
-                Redis::del($this->requestKey);
-                return;
-            }
-
-            (new MetricsService())->updateAnswerMetrics($answerData);
-       
+        $name = $this->requestKey;
+        Log::warning($name);
+        if(!$name || !str_contains($name, 'metrics:')) {
             Redis::del($this->requestKey);
+            return;
         }
+
+        $value = Redis::get($this->requestKey);        
+
+        if (!$value) {
+            return;
+        }
+
+        $data = explode(':', $this->requestKey);
+        $formId = $data[1] ?? null;
+        $fieldId = $data[2] ?? null;
+
+        if (!$formId || !$fieldId) {
+            return;
+        }
+
+        $form = Form::where('slug', $formId)->first();
+        $fieldExists = collect($form->fields)->contains(fn($field) => $field['field_id'] === $fieldId);
+
+        if (!$fieldExists) {
+            return;
+        }
+
+        (new MetricsService())->updateAnswerMetrics(AnswerMetricsType::VIEW, [
+            'form_id' => $formId,
+            'field_id' => $fieldId,
+            'increments' => $value
+        ]);
+
+        Redis::del($this->requestKey);
     }
 }

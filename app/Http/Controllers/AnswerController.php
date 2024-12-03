@@ -8,6 +8,7 @@ use App\Models\Form;
 use Illuminate\Http\Request;
 use App\Services\FormNotificationService;
 use App\Services\MetricsService;
+use App\Enums\AnswerMetricsType;
 
 class AnswerController extends Controller
 {
@@ -39,12 +40,7 @@ class AnswerController extends Controller
 		]);
 
 		$metrics = new MetricsService();
-		$type = 'submit';
-		$metrics->updateAnswerMetrics([
-			'form_id' => $answer->form_id,
-			'field_id' => $answer->field_id,
-			'type' => $type
-		]);
+		$metrics->updateAnswerMetrics(AnswerMetricsType::SUBMIT, $answer);
 
 		/**
 		 * O parametro "is_last" determina que essa resposta

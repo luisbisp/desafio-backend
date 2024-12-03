@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('answers_metrics', function (Blueprint $table) {
             $table->id();
             $table->string('form_id')->index();
-            $table->string('field_id');
+            $table->string('field_id')->index()->unique();
             $table->integer('views')->default(0);
             $table->integer('submits')->default(0);
             $table->timestamps();

@@ -22,7 +22,7 @@ class AnswersMetrics extends Model
         $views = $this->views;
         $submits = $this->submits;
 
-        $this->drop_off = $views > 0 ? round($submits / $views * 100).'%' : '0%';
+        $this->drop_off = $views > 0 ? round(($views - $submits) / $views * 100) : 0;
 
     }
 }

@@ -50,7 +50,7 @@ class AnswersMetricsTest extends TestCase
         $form = Form::factory()->for($user)->create();
         $fieldId = $form->fields[0]['field_id'];
 
-        $post = $this->post('/api/answers/metrics', [
+        $post = $this->post('/api/metrics/answers', [
             'form_id' => $form->slug,
             'field_id' => $fieldId,
             'type' => 'view'
@@ -67,18 +67,12 @@ class AnswersMetricsTest extends TestCase
         $user = User::factory()->create();
         $form = Form::factory()->for($user)->create();
         $fieldId = $form->fields[0]['field_id'];
+        
+
+        $requestKey = 'metrics:' . $form->slug . ':' . $fieldId;
         $numIncrements = 1;
-
-        $answer = [
-            'form_id' => $form->slug,
-            'field_id' => $fieldId,
-            'type' => 'view',
-            'increments' => $numIncrements
-        ];
-
-        $requestKey = 'answer_metrics_' . $form->slug . '_' . $fieldId;
         $expirationTime = 300;
-        Redis::setex($requestKey, $expirationTime, json_encode($answer));
+        Redis::setex($requestKey, $expirationTime, $numIncrements);
         UpdateViewAnswerMetrics::dispatchSync($requestKey);
 
         $numViews = 1;
@@ -98,19 +92,12 @@ class AnswersMetricsTest extends TestCase
     {
         $user = User::factory()->create();
         $form = Form::factory()->for($user)->create();
-        $fieldId = $form->fields[0]['field_id'];
         $numIncrements = 1;
 
-        $answer = [
-            'form_id' => $form->slug,
-            'field_id' => 'invalid',
-            'type' => 'view',
-            'increments' => $numIncrements
-        ];
-
-        $requestKey = 'answer_metrics_' . $form->slug . '_' . $fieldId;
+        $requestKey = 'metrics:' . $form->slug . ':invalid';
+        $numIncrements = 1;
         $expirationTime = 300;
-        Redis::setex($requestKey, $expirationTime, json_encode($answer));
+        Redis::setex($requestKey, $expirationTime, $numIncrements);
         UpdateViewAnswerMetrics::dispatchSync($requestKey);
 
         $numViews = 1;
@@ -133,7 +120,7 @@ class AnswersMetricsTest extends TestCase
         $respondent = Respondent::factory()->for($form)->create();
         $answer = Answer::factory()->for($form)->for($respondent)->create();
 
-        $post = $this->post('/api/answers/metrics', [
+        $post = $this->post('/api/metrics/answers', [
             'form_id' => $form->slug,
             'field_id' => $answer->field_id,
             'type' => 'invalid'
@@ -154,7 +141,7 @@ class AnswersMetricsTest extends TestCase
         $respondent = Respondent::factory()->for($form)->create();
         $answer = Answer::factory()->for($form)->for($respondent)->create();
 
-        $post = $this->post('/api/answers/metrics', [
+        $post = $this->post('/api/metrics/answers', [
             'form_id' => 'invalid',
             'field_id' => $answer->field_id,
             'type' => 'view'
@@ -181,7 +168,7 @@ class AnswersMetricsTest extends TestCase
             ]);
         }
 
-        $response = $this->actingAs($user)->get("/api/forms/$form->slug/metrics");
+        $response = $this->actingAs($user)->get("/api/metrics/answers/$form->slug");
         $response->assertStatus(200);
     }
 
@@ -190,7 +177,7 @@ class AnswersMetricsTest extends TestCase
 
         $user = User::factory()->create();
         $form = Form::factory()->for($user)->create();
-        $response = $this->get("/api/forms/$form->slug/metrics");
+        $response = $this->get("/api/metrics/answers/$form->slug");
         $response->assertStatus(401);
     }
 
