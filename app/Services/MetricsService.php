@@ -66,7 +66,8 @@ class MetricsService
         }
 
         $expirationTime = 300;
-        Redis::setex($requestKey, $expirationTime, 1);
+        $newIncrement = 1;
+        Redis::setex($requestKey, $expirationTime, $newIncrement);
 
         $jobExecutionTime = 1;
         UpdateViewAnswerMetrics::dispatch($requestKey)->delay(now()->addMinutes($jobExecutionTime));
