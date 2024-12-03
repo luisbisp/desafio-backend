@@ -40,8 +40,8 @@ class MetricsService
         !$newMetric->exists && $newMetric->save();
 
         match ($type) {
-            'submit' =>  $newMetric->increment('submits'),
-            'view' => $newMetric->increment('views', $answer['increments']),
+            AnswerMetricsType::SUBMIT =>  $newMetric->increment('submits'),
+            AnswerMetricsType::VIEW => $newMetric->increment('views', $answer['increments']),
         };
     }
 
