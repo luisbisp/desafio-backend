@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Form;
-use App\Models\Respondent;
 use App\Services\FormService;
+use App\Services\MetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-
-use function Laravel\Prompts\form;
 
 class FormController extends Controller
 {
@@ -77,7 +75,10 @@ class FormController extends Controller
 			'fields.*.field_id' => 'sometimes|string',
 		]);
 
+		$oldFields = $form->fields;
 		$form->update($validatedData);
+
+		(new MetricsService())->clearDeletedFields($oldFields, $form->fields);
 
 		return response()->json(['data' => $form], 200);
 	}

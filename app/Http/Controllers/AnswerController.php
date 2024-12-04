@@ -8,11 +8,10 @@ use App\Models\Form;
 use Illuminate\Http\Request;
 use App\Services\FormNotificationService;
 use App\Services\MetricsService;
-use Tests\Feature\Metrics;
+use App\Enums\AnswerMetricsType;
 
 class AnswerController extends Controller
 {
-
 
 	/**
 	 * Store a newly created resource in storage.
@@ -40,6 +39,8 @@ class AnswerController extends Controller
 			'field_id' => $validated['field_id']
 		]);
 
+		$metrics = new MetricsService();
+		$metrics->updateAnswerMetrics(AnswerMetricsType::SUBMIT, $answer);
 
 		/**
 		 * O parametro "is_last" determina que essa resposta
@@ -58,8 +59,7 @@ class AnswerController extends Controller
 			$notification->notifyFormCreatorWebhook($form,  $respondent);
 			$notification->notifyFormRespondentEmail($form,  $respondent);
 
-			(new MetricsService())->updateFormTime($respondent, $formId);
-			
+			$metrics->updateFormTime($respondent, $formId);
 		}
 
 		return response()->json(['data' => $answer], 201);
